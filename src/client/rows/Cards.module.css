@@ -1,0 +1,357 @@
+/* Card-grid presentation of the browsing region. Cards sit on the sidebar
+   fill as a raised layer (--dsw-alias-bg-layer-1, which is lighter than the
+   sidebar in both themes) with the same 1px border family as the region's
+   dialogs, so the grid reads as the row tree's peer rather than a new surface.
+
+   Columns follow the sidebar's own width: a narrow sidebar keeps two columns
+   and a wide one adds more, instead of stretching cards into rows. Every card
+   is one grid cell, stretched to its row's height by the grid default, so a
+   one-line and a two-line title still scan as one band. */
+
+.cardGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardGroup + .cardGroup {
+  margin-top: 8px;
+}
+
+/* The folder card: the same Workspace row the tree draws, on a raised layer.
+   The clip keeps that row's hover tint inside the card's radius. */
+.folderCard {
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 10px;
+  background: var(--dsw-alias-bg-layer-1);
+  overflow: hidden;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sessionCard {
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 10px;
+  background: var(--dsw-alias-bg-layer-1);
+}
+
+.sessionCard.selected {
+  border-color: var(--dsw-alias-state-business-primary);
+}
+
+/* The card's whole surface is its primary action; the action menu is a
+   sibling overlay (never a nested button) revealed on hover or focus. */
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--dsw-alias-label-primary);
+}
+
+.cardBody:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.cardBody:focus-visible {
+  outline: 2px solid var(--dsw-alias-state-business-primary);
+  outline-offset: -2px;
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cardGlyph {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+/* Two-line clamp: a long title wraps, then truncates, and the untruncated
+   text stays reachable through the hover card and the button's accessible
+   name. `anywhere` breaks unspaced CJK and long path-like names. */
+.cardTitle {
+  flex: 1;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  /* Reserves both corner controls (theme tag, then the action menu) so
+     revealing either never reflows the row. */
+  padding-right: 40px;
+  margin-top: auto;
+}
+
+.cardStatus {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Same 6px marker the pinned Workspace and Session rows carry. */
+.pinBadge {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dsw-alias-state-business-primary);
+}
+
+.cardTime {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.cardActions {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  display: inline-flex;
+}
+
+/* One control for both corner actions: the Session verbs menu and the theme
+   panel. Both stay invisible until the card is hovered or focused, except a
+   themed card's tag, which reports its theme at rest. */
+.cardMenuButton,
+.cardThemeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.sessionCard:hover .cardMenuButton,
+.sessionCard:hover .cardThemeButton,
+.sessionCard:focus-within .cardMenuButton,
+.sessionCard:focus-within .cardThemeButton,
+.sessionCard.menuOpen .cardMenuButton,
+.sessionCard.menuOpen .cardThemeButton {
+  opacity: 1;
+}
+
+/* The tag carries the theme's own color, set inline from the theme's slot. */
+.cardThemeButton.cardThemeAssigned {
+  opacity: 1;
+}
+
+.cardMenuButton:hover,
+.cardThemeButton:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.cardMenuButton:focus-visible,
+.cardThemeButton:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--dsw-alias-state-business-primary);
+  outline-offset: -2px;
+}
+
+/* Theme dot in the theme panel's menu: round, so it never reads as the folder
+   color swatch that shares that slot in the Workspace menu. */
+.themeSwatch {
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.themeSwatchNone {
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  border: 1px dashed var(--dsw-alias-label-tertiary);
+  border-radius: 50%;
+}
+
+/* Theme sections of one folder's card grid: a themed group is a solid border
+   in the theme's rainbow color, the unthemed group a dashed neutral one, and
+   both wrap the section so the cards inside keep their own spacing. */
+.themeSections {
+  display: flex;
+  flex-direction: column;
+  margin-top: 6px;
+}
+
+.themeSection {
+  padding: 5px 7px 7px;
+  border-radius: 14px;
+}
+
+.themeSection + .themeSection {
+  margin-top: 8px;
+}
+
+/* Jelly membrane: the theme color arrives as `--theme-tint` and reads as a soft
+   translucent gel rather than a hairline box — a tinted pane, an inner highlight
+   along the top edge, a soft bounce of the same tint along the bottom, and a
+   short drop glow beneath it. The hover lift overshoots slightly and settles,
+   which is what makes the surface read as jelly. */
+.themeSectionThemed {
+  border: 1.5px solid color-mix(in oklab, var(--theme-tint) 62%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--theme-tint) 13%, transparent),
+    color-mix(in oklab, var(--theme-tint) 5%, transparent)
+  );
+  box-shadow:
+    inset 0 1px 0 light-dark(rgb(255 255 255 / 75%), rgb(255 255 255 / 16%)),
+    inset 0 -7px 12px -9px color-mix(in oklab, var(--theme-tint) 70%, transparent),
+    0 7px 16px -10px color-mix(in oklab, var(--theme-tint) 70%, transparent);
+  transition:
+    transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 240ms ease-out;
+}
+
+.themeSectionThemed:hover {
+  transform: translateY(-1px) scale(1.008);
+  box-shadow:
+    inset 0 1px 0 light-dark(rgb(255 255 255 / 80%), rgb(255 255 255 / 20%)),
+    inset 0 -8px 14px -9px color-mix(in oklab, var(--theme-tint) 78%, transparent),
+    0 11px 20px -10px color-mix(in oklab, var(--theme-tint) 78%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .themeSectionThemed {
+    transition: none;
+  }
+
+  .themeSectionThemed:hover {
+    transform: none;
+  }
+}
+
+.themeSectionUnthemed {
+  border-width: 1px;
+  border-style: dashed;
+  border-color: var(--dsw-alias-border-l2);
+}
+
+.themeHeader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  min-width: 0;
+}
+
+.themeDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.themeDotUnthemed {
+  border: 1px dashed var(--dsw-alias-label-tertiary);
+}
+
+.themeName {
+  flex: none;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.themeCount {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.themeMenuButton {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.themeMenuButton:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.themeMenuButton:focus-visible {
+  outline: 2px solid var(--dsw-alias-state-business-primary);
+  outline-offset: -2px;
+}
+
+/* Same fold control as the row tree, aligned with a card's inner padding. */
+.cardOverflowButton {
+  height: 28px;
+  margin-top: 2px;
+  border: none;
+  border-radius: 8px;
+  padding: 0 8px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.cardOverflowButton:hover {
+  color: var(--dsw-alias-label-secondary);
+}

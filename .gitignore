@@ -1,0 +1,8 @@
+# 构建/调试产物
+*.map
+# 本地打包
+*.tgz
+*.zip
+# 依赖（本仓库只分发源码+产物，不随附 node_modules）
+node_modules/
+npm-debug.log*
